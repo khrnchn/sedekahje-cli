@@ -1,13 +1,23 @@
 import qrcode from "qrcode-terminal";
 
-// Fixed frame size — large enough for the biggest QR codes (~200 char payloads)
+// Default frame size — large enough for the biggest QR codes (~200 char payloads)
 // QR version 10 (small mode) renders at ~29 lines x ~57 cols
-// We use a consistent frame so all QR codes occupy the same space
-const FRAME_WIDTH = 57;
-const FRAME_HEIGHT = 29;
+const DEFAULT_FRAME_WIDTH = 57;
+const DEFAULT_FRAME_HEIGHT = 29;
 
-/** Generate QR string and pad/center it to a fixed frame size */
-export function generateQrString(data: string): Promise<string> {
+export interface QrFrameOptions {
+	frameWidth?: number;
+	frameHeight?: number;
+}
+
+/** Generate QR string and pad/center it to a frame size */
+export function generateQrString(
+	data: string,
+	options?: QrFrameOptions,
+): Promise<string> {
+	const frameWidth = options?.frameWidth ?? DEFAULT_FRAME_WIDTH;
+	const frameHeight = options?.frameHeight ?? DEFAULT_FRAME_HEIGHT;
+
 	return new Promise((resolve) => {
 		qrcode.generate(data, { small: true }, (code: string) => {
 			const raw = code ?? "";
@@ -17,27 +27,27 @@ export function generateQrString(data: string): Promise<string> {
 			const qrHeight = lines.length;
 
 			// Vertical centering
-			const topPad = Math.max(0, Math.floor((FRAME_HEIGHT - qrHeight) / 2));
-			const bottomPad = Math.max(0, FRAME_HEIGHT - qrHeight - topPad);
+			const topPad = Math.max(0, Math.floor((frameHeight - qrHeight) / 2));
+			const bottomPad = Math.max(0, frameHeight - qrHeight - topPad);
 
 			// Horizontal centering
-			const leftPad = Math.max(0, Math.floor((FRAME_WIDTH - qrWidth) / 2));
+			const leftPad = Math.max(0, Math.floor((frameWidth - qrWidth) / 2));
 
 			const padded: string[] = [];
 
 			for (let i = 0; i < topPad; i++) {
-				padded.push(" ".repeat(FRAME_WIDTH));
+				padded.push(" ".repeat(frameWidth));
 			}
 
 			for (const line of lines) {
-				const padRight = Math.max(0, FRAME_WIDTH - leftPad - line.length);
+				const padRight = Math.max(0, frameWidth - leftPad - line.length);
 				padded.push(
 					" ".repeat(leftPad) + line + " ".repeat(padRight),
 				);
 			}
 
 			for (let i = 0; i < bottomPad; i++) {
-				padded.push(" ".repeat(FRAME_WIDTH));
+				padded.push(" ".repeat(frameWidth));
 			}
 
 			resolve(padded.join("\n"));

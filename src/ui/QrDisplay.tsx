@@ -6,9 +6,16 @@ import { generateQrString } from "../utils/qr.ts";
 interface QrDisplayProps {
 	data: string | null;
 	paymentMethod?: PaymentMethod | null;
+	frameWidth?: number;
+	frameHeight?: number;
 }
 
-export function QrDisplay({ data, paymentMethod }: QrDisplayProps) {
+export function QrDisplay({
+	data,
+	paymentMethod,
+	frameWidth,
+	frameHeight,
+}: QrDisplayProps) {
 	const [qrText, setQrText] = useState<string>("");
 
 	useEffect(() => {
@@ -16,8 +23,10 @@ export function QrDisplay({ data, paymentMethod }: QrDisplayProps) {
 			setQrText("");
 			return;
 		}
-		generateQrString(data).then((framed) => setQrText(framed));
-	}, [data]);
+		generateQrString(data, { frameWidth, frameHeight }).then((framed) =>
+			setQrText(framed),
+		);
+	}, [data, frameWidth, frameHeight]);
 
 	if (!data || !qrText) {
 		return (

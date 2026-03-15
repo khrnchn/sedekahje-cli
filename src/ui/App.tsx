@@ -10,8 +10,14 @@ import { FilterBar } from "./FilterBar.tsx";
 import { StatusBar } from "./StatusBar.tsx";
 import { useInstitutions } from "./hooks/useInstitutions.ts";
 import { useFilters } from "./hooks/useFilters.ts";
+import { useFuzzySearch } from "./hooks/useFuzzySearch.ts";
 import type { SearchParams } from "../types.ts";
 import { colors } from "./brand.ts";
+import { openUrl } from "../utils/open.ts";
+import { useToast } from "./Toast.tsx";
+import { useDialog } from "./Dialog.tsx";
+import { HelpDialog } from "./HelpDialog.tsx";
+import { CommandPalette, type Command } from "./CommandPalette.tsx";
 
 const CATEGORIES = ["masjid", "surau", "tahfiz", "kebajikan", "lain-lain"];
 
@@ -30,6 +36,26 @@ export function App({ initialState, initialCategory }: AppProps) {
 			category: initialCategory ?? "",
 		});
 
+	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [focusedPane, setFocusedPane] = useState<"list" | "detail">("list");
+	const [mode, setMode] = useState<"list" | "detail" | "search" | "filter">(
+		"list",
+	);
+
+	// Compute content height and dynamic page limit to fill the list panel
+	const contentHeight =
+		height -
+		1 - // header
+		(mode === "search" ? 1 : 0) -
+		(mode === "filter" ? 3 : 0) -
+		(filters.state || filters.category ? 1 : 0) -
+		2; // status bar
+	const pageLimit = Math.max(
+		15,
+		Math.min(50, Math.floor((contentHeight - 2) / 2)),
+	);
+	const paramsWithLimit = { ...params, limit: pageLimit };
+
 	const {
 		institutions,
 		pagination,
@@ -40,26 +66,27 @@ export function App({ initialState, initialCategory }: AppProps) {
 		prevPage,
 		fetchRandom,
 		randomInstitution,
-	} = useInstitutions(params);
-
-	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [focusedPane, setFocusedPane] = useState<"list" | "detail">("list");
-	const [mode, setMode] = useState<"list" | "detail" | "search" | "filter">(
-		"list",
-	);
+	} = useInstitutions(paramsWithLimit);
 	const [searchInput, setSearchInput] = useState("");
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const toast = useToast();
+	const dialog = useDialog();
 
-	// Re-fetch when filters change
+	// Re-fetch when filters or terminal size changes (limit depends on contentHeight)
 	const prevParamsRef = useRef<string>("");
 	useEffect(() => {
-		const key = JSON.stringify(params);
+		const key = JSON.stringify(paramsWithLimit);
 		if (key !== prevParamsRef.current) {
 			prevParamsRef.current = key;
-			fetchInstitutions({ ...params, page: 1 });
+			fetchInstitutions({ ...paramsWithLimit, page: 1 });
 			setSelectedIndex(0);
 		}
-	}, [params, fetchInstitutions]);
+	}, [paramsWithLimit, fetchInstitutions]);
+
+	// Show API errors via toast
+	useEffect(() => {
+		if (error) toast.error(error);
+	}, [error, toast]);
 
 	// Show random institution in detail pane
 	useEffect(() => {
@@ -75,6 +102,102 @@ export function App({ initialState, initialCategory }: AppProps) {
 		setFocusedPane("list");
 	}, [searchInput, setSearch]);
 
+	const openCommandPalette = useCallback(() => {
+		const commands: Command[] = [
+			{
+				id: "search",
+				label: "Search",
+				shortcut: "/",
+				action: () => setMode("search"),
+			},
+			{
+				id: "filter",
+				label: "Filter by category",
+				shortcut: "f",
+				action: () => setMode("filter"),
+			},
+			{
+				id: "random",
+				label: "Random institution",
+				shortcut: "r",
+				action: () => fetchRandom(),
+			},
+			{
+				id: "next",
+				label: "Next page",
+				shortcut: "n",
+				action: () => {
+					if (pagination?.hasMore) {
+						nextPage();
+						setSelectedIndex(0);
+					} else {
+						toast.show({ variant: "info", message: "No more pages" });
+					}
+				},
+			},
+			{
+				id: "prev",
+				label: "Prev page",
+				shortcut: "p",
+				action: () => {
+					if (pagination && pagination.page > 1) {
+						prevPage();
+						setSelectedIndex(0);
+					} else {
+						toast.show({ variant: "info", message: "No more pages" });
+					}
+				},
+			},
+			{
+				id: "open",
+				label: "Open in browser",
+				shortcut: "o",
+				action: () => {
+					const inst = institutions[selectedIndex];
+					if (inst && "slug" in inst && inst.slug) {
+						const url = `https://sedekah.je/${inst.category}/${inst.slug}`;
+						try {
+							openUrl(url);
+							toast.show({ variant: "success", message: "Opening in browser..." });
+						} catch {
+							toast.error("Failed to open browser");
+						}
+					} else {
+						toast.show({ variant: "warning", message: "No URL available" });
+					}
+				},
+			},
+			{
+				id: "help",
+				label: "Help",
+				shortcut: "?",
+				action: () => dialog.show(<HelpDialog />),
+			},
+			{
+				id: "quit",
+				label: "Quit",
+				shortcut: "q",
+				action: () => renderer.destroy(),
+			},
+		];
+		dialog.show(
+			<CommandPalette
+				commands={commands}
+				onClose={() => dialog.close()}
+			/>,
+		);
+	}, [
+		pagination,
+		institutions,
+		selectedIndex,
+		nextPage,
+		prevPage,
+		fetchRandom,
+		toast,
+		dialog,
+		renderer,
+	]);
+
 	useKeyboard((key) => {
 		// Global: quit
 		if (key.name === "q" && mode !== "search") {
@@ -89,9 +212,19 @@ export function App({ initialState, initialCategory }: AppProps) {
 
 		// Search mode
 		if (mode === "search") {
+			if (key.ctrl && key.name === "p") {
+				key.preventDefault();
+				// Show command palette - use same commands as normal mode
+				openCommandPalette();
+				return;
+			}
 			if (key.name === "escape") {
 				setMode("list");
 				setFocusedPane("list");
+				return;
+			}
+			if (key.name === "?") {
+				dialog.show(<HelpDialog />);
 				return;
 			}
 			if (key.name === "return") {
@@ -111,8 +244,17 @@ export function App({ initialState, initialCategory }: AppProps) {
 
 		// Filter mode
 		if (mode === "filter") {
+			if (key.ctrl && key.name === "p") {
+				key.preventDefault();
+				openCommandPalette();
+				return;
+			}
 			if (key.name === "escape") {
 				setMode("list");
+				return;
+			}
+			if (key.name === "?") {
+				dialog.show(<HelpDialog />);
 				return;
 			}
 			const num = Number.parseInt(key.raw ?? "", 10);
@@ -132,6 +274,15 @@ export function App({ initialState, initialCategory }: AppProps) {
 		}
 
 		// Normal mode
+		if (key.ctrl && key.name === "p") {
+			key.preventDefault();
+			openCommandPalette();
+			return;
+		}
+		if (key.name === "?") {
+			dialog.show(<HelpDialog />);
+			return;
+		}
 		switch (key.name) {
 			case "tab":
 				setFocusedPane((p: "list" | "detail") => (p === "list" ? "detail" : "list"));
@@ -144,12 +295,20 @@ export function App({ initialState, initialCategory }: AppProps) {
 				setMode("filter");
 				break;
 			case "n":
-				nextPage();
-				setSelectedIndex(0);
+				if (pagination?.hasMore) {
+					nextPage();
+					setSelectedIndex(0);
+				} else {
+					toast.show({ variant: "info", message: "No more pages" });
+				}
 				break;
 			case "p":
-				prevPage();
-				setSelectedIndex(0);
+				if (pagination && pagination.page > 1) {
+					prevPage();
+					setSelectedIndex(0);
+				} else {
+					toast.show({ variant: "info", message: "No more pages" });
+				}
 				break;
 			case "r":
 				fetchRandom();
@@ -158,26 +317,41 @@ export function App({ initialState, initialCategory }: AppProps) {
 				const inst = institutions[selectedIndex];
 				if (inst && "slug" in inst && inst.slug) {
 					const url = `https://sedekah.je/${inst.category}/${inst.slug}`;
-					// Use Bun.spawn to open URL in browser
 					try {
-						Bun.spawn(["xdg-open", url]);
+						openUrl(url);
+						toast.show({ variant: "success", message: "Opening in browser..." });
 					} catch {
-						// Silently fail if can't open browser
+						toast.error("Failed to open browser");
 					}
+				} else {
+					toast.show({ variant: "warning", message: "No URL available" });
 				}
 				break;
 			}
 			case "escape":
-				clearFilters();
-				setSearchInput("");
+				if (filters.state || filters.category || searchInput) {
+					clearFilters();
+					setSearchInput("");
+					toast.show({ variant: "info", message: "Filters cleared" });
+				}
 				break;
 		}
 	});
 
+	// Responsive layout: list panel ~50% of width, explicit content height for proper scroll
+	const listWidth = Math.min(60, Math.max(36, Math.floor(width * 0.5)));
+	const isNarrow = width < 80;
+
+	// Client-side fuzzy search when in search mode; otherwise use server data
+	const displayInstitutions = useFuzzySearch(
+		institutions,
+		mode === "search" ? searchInput : "",
+	);
+	const displayIndex = Math.min(selectedIndex, displayInstitutions.length - 1);
 	const selectedInst =
 		randomInstitution && focusedPane === "detail"
 			? randomInstitution
-			: (institutions[selectedIndex] ?? null);
+			: (displayInstitutions[displayIndex] ?? null);
 
 	return (
 		<box
@@ -232,26 +406,34 @@ export function App({ initialState, initialCategory }: AppProps) {
 			{/* Active filter pills */}
 			<FilterBar filters={filters} />
 
-			{/* Error display */}
-			{error ? (
-				<box height={1} width="100%" backgroundColor="#450a0a" paddingLeft={1}>
-					<text fg="#fca5a5">{`Error: ${error}`}</text>
-				</box>
-			) : null}
-
-			{/* Main content: two panes */}
-			<box flexDirection="row" flexGrow={1}>
-				<InstitutionList
-					institutions={institutions}
-					loading={loading}
-					focused={focusedPane === "list"}
-					selectedIndex={selectedIndex}
-					onSelect={setSelectedIndex}
-				/>
-				<InstitutionDetail
-					institution={selectedInst}
-					focused={focusedPane === "detail"}
-				/>
+			{/* Main content: two panes (or single pane when narrow) */}
+			<box flexDirection="row" flexGrow={1} minHeight={0}>
+				{(!isNarrow || focusedPane === "list") ? (
+					<InstitutionList
+						institutions={displayInstitutions}
+						loading={loading}
+						focused={focusedPane === "list"}
+						selectedIndex={displayIndex}
+						onSelect={setSelectedIndex}
+						width={listWidth}
+						height={contentHeight}
+					/>
+				) : null}
+				{(!isNarrow || focusedPane === "detail") ? (
+					<InstitutionDetail
+						institution={selectedInst}
+						focused={focusedPane === "detail"}
+						availableWidth={isNarrow ? width : width - listWidth}
+						onOpenUrl={(url) => {
+							try {
+								openUrl(url);
+								toast.show({ variant: "success", message: "Opening in browser..." });
+							} catch {
+								toast.error("Failed to open browser");
+							}
+						}}
+					/>
+				) : null}
 			</box>
 
 			{/* Status bar */}

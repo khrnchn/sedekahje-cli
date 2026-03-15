@@ -5,6 +5,8 @@ import { colors, MOSQUE_ART } from "./brand.ts";
 interface InstitutionDetailProps {
 	institution: Institution | InstitutionCompact | null;
 	focused: boolean;
+	availableWidth?: number;
+	onOpenUrl?: (url: string) => void;
 }
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -26,6 +28,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function InstitutionDetail({
 	institution: inst,
 	focused,
+	availableWidth,
+	onOpenUrl,
 }: InstitutionDetailProps) {
 	if (!inst) {
 		return (
@@ -40,7 +44,15 @@ export function InstitutionDetail({
 				alignItems="center"
 			>
 				{/* Mosque ASCII art as empty state */}
-				<scrollbox>
+				<scrollbox
+					focused={focused}
+					scrollbarOptions={{
+						trackOptions: {
+							backgroundColor: "#334155",
+							foregroundColor: "#01CDB4",
+						},
+					}}
+				>
 					{MOSQUE_ART.map((line, i) => (
 						<text key={i} fg={colors.tealDark}>
 							{line}
@@ -100,12 +112,17 @@ export function InstitutionDetail({
 			</text>
 
 			{url ? (
-				<text>
-					<span fg={colors.textDim}>{"URL:       "}</span>
-					<u>
-						<span fg="#60a5fa">{url}</span>
-					</u>
-				</text>
+				<box
+					onMouseUp={() => onOpenUrl?.(url)}
+					flexDirection="row"
+				>
+					<text>
+						<span fg={colors.textDim}>{"URL:       "}</span>
+						<u>
+							<span fg="#60a5fa">{url}</span>
+						</u>
+					</text>
+				</box>
 			) : null}
 
 			{"description" in inst && inst.description ? (
@@ -116,7 +133,20 @@ export function InstitutionDetail({
 			) : null}
 
 			<box height={1} />
-			<QrDisplay data={inst.qrContent} paymentMethod={primaryPayment} />
+			<QrDisplay
+				data={inst.qrContent}
+				paymentMethod={primaryPayment}
+				frameWidth={
+					availableWidth
+						? Math.min(57, Math.max(25, availableWidth - 4))
+						: undefined
+				}
+				frameHeight={
+					availableWidth
+						? Math.min(29, Math.max(13, Math.floor((availableWidth - 4) * 0.5)))
+						: undefined
+				}
+			/>
 		</box>
 	);
 }

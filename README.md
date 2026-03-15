@@ -62,7 +62,29 @@ sedekah browse --state Selangor
 
 ## Install
 
-Requires [Bun](https://bun.sh).
+### Quick install (recommended)
+
+Downloads a pre-built binary from [GitHub Releases](https://github.com/khrnchn/sedekahje-cli/releases). No Bun required.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/main/install.sh | sh
+```
+
+Installs to `~/.local/bin` by default. Set `SEDEKAHJE_INSTALL_DIR` to customize:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/main/install.sh | SEDEKAHJE_INSTALL_DIR=/usr/local/bin sh
+```
+
+Install a specific version:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/main/install.sh | SEDEKAHJE_VERSION=v0.1.0 sh
+```
+
+**Supported:** Linux (x64, arm64), macOS (x64, Apple Silicon), Windows (x64)
+
+### From source (requires [Bun](https://bun.sh))
 
 ```bash
 git clone https://github.com/khrnchn/sedekahje-cli.git
@@ -84,6 +106,10 @@ bun run dev qr "masjid negara"
 bun run build
 ./sedekah browse
 ```
+
+### Publishing a release
+
+Releases are **automated on every push** to `main` or `master`. [GitHub Actions](.github/workflows/release.yml) builds binaries and publishes to [Releases](https://github.com/khrnchn/sedekahje-cli/releases). Each release is tagged as `v{version}+{sha}` (e.g. `v0.1.0+abc1234`).
 
 ## Tech Stack
 

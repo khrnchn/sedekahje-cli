@@ -17,6 +17,7 @@ export const colors = {
 	textMuted: "#64748b",
 	border: "#334155",
 	borderFocused: "#01AB95",
+	error: "#ef4444",
 };
 
 // Payment method brand colors (matching web qr-code-display.tsx)

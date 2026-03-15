@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
 import { useKeyboard } from "@opentui/react";
 import type { Institution, InstitutionCompact } from "../types.ts";
+import { Spinner } from "./Spinner.tsx";
 
 interface InstitutionListProps {
 	institutions: (Institution | InstitutionCompact)[];
@@ -8,6 +8,8 @@ interface InstitutionListProps {
 	focused: boolean;
 	selectedIndex: number;
 	onSelect: (index: number) => void;
+	width?: number;
+	height?: number;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -25,6 +27,8 @@ export function InstitutionList({
 	focused,
 	selectedIndex,
 	onSelect,
+	width = 42,
+	height,
 }: InstitutionListProps) {
 	useKeyboard(
 		(key) => {
@@ -45,7 +49,7 @@ export function InstitutionList({
 	if (loading) {
 		return (
 			<box
-				width={42}
+				width={width}
 				border={true}
 				borderStyle="rounded"
 				borderColor="#334155"
@@ -53,7 +57,7 @@ export function InstitutionList({
 				padding={1}
 				flexDirection="column"
 			>
-				<text fg="#94a3b8">{"Loading..."}</text>
+				<Spinner />
 			</box>
 		);
 	}
@@ -61,7 +65,7 @@ export function InstitutionList({
 	if (institutions.length === 0) {
 		return (
 			<box
-				width={42}
+				width={width}
 				border={true}
 				borderStyle="rounded"
 				borderColor={focused ? "#01AB95" : "#334155"}
@@ -74,16 +78,29 @@ export function InstitutionList({
 		);
 	}
 
-	return (
+		return (
 		<box
-			width={42}
+			width={width}
+			height={height}
 			border={true}
 			borderStyle="rounded"
 			borderColor={focused ? "#01AB95" : "#334155"}
 			title=" Institutions "
 			flexDirection="column"
 		>
-			<scrollbox focused={focused}>
+			<scrollbox
+			focused={focused}
+			height={height != null ? Math.max(5, height - 2) : undefined}
+			flexGrow={1}
+			flexShrink={1}
+			minHeight={0}
+			scrollbarOptions={{
+				trackOptions: {
+					backgroundColor: "#334155",
+					foregroundColor: "#01CDB4",
+				},
+			}}
+		>
 				{institutions.map((inst, i) => {
 					const isSelected = i === selectedIndex;
 					const catColor = CATEGORY_COLORS[inst.category] ?? "#6b7280";
@@ -96,6 +113,7 @@ export function InstitutionList({
 							backgroundColor={isSelected ? "#1e3a5f" : "transparent"}
 							paddingLeft={1}
 							paddingRight={1}
+							onMouseUp={() => onSelect(i)}
 						>
 							<box flexDirection="column" flexGrow={1}>
 								<text>
