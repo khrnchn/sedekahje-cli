@@ -1,5 +1,7 @@
 # sedekahje-cli
 
+![sedekahje-cli TUI](image.png)
+
 Browse Malaysian donation QR codes from your terminal. A CLI & TUI companion for [sedekah.je](https://sedekah.je).
 
 ## Interactive TUI
