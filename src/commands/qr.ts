@@ -16,10 +16,33 @@ export const qrCommand = new Command("qr")
 			}
 
 			const inst = data.institutions[0]!;
-			console.log(`\n  ${chalk.bold(inst.name)} ${chalk.dim(`(${inst.state})`)}\n`);
+			const payment = inst.supportedPayment?.[0];
+			const paymentLabel: Record<string, string> = {
+				duitnow: "DuitNow",
+				tng: "Touch 'n Go",
+				boost: "Boost",
+				toyyibpay: "ToyyibPay",
+			};
+			const paymentHex: Record<string, string> = {
+				duitnow: "#ED2C67",
+				tng: "#015ABF",
+				boost: "#FF3333",
+				toyyibpay: "#00847F",
+			};
+
+			console.log(`\n  ${chalk.bold(inst.name)} ${chalk.dim(`(${inst.state})`)}`);
+			if (payment) {
+				const color = paymentHex[payment] ?? "#888";
+				const label = paymentLabel[payment] ?? payment;
+				console.log(`  ${chalk.hex(color)(`── ${label} ──────────`)}`);
+			}
+			console.log("");
 
 			if (inst.qrContent) {
 				await renderQrCode(inst.qrContent);
+				if (payment) {
+					console.log(chalk.dim(`  Scan with ${paymentLabel[payment] ?? payment}`));
+				}
 			} else if (inst.qrImage) {
 				console.log(chalk.dim("  No QR data available. QR image URL:"));
 				console.log(`  ${chalk.underline(inst.qrImage)}\n`);
@@ -34,6 +57,8 @@ export const qrCommand = new Command("qr")
 				}
 				console.log("");
 			}
+			console.log(chalk.dim("  buymeacoffee.com/") + chalk.hex("#FED321")("khairin"));
+			console.log("");
 		} catch (err) {
 			console.error(chalk.red(`Error: ${(err as Error).message}`));
 			process.exit(1);

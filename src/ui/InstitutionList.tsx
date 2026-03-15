@@ -64,7 +64,7 @@ export function InstitutionList({
 				width={42}
 				border={true}
 				borderStyle="rounded"
-				borderColor={focused ? "#3b82f6" : "#334155"}
+				borderColor={focused ? "#01AB95" : "#334155"}
 				title=" Institutions "
 				padding={1}
 				flexDirection="column"
@@ -79,7 +79,7 @@ export function InstitutionList({
 			width={42}
 			border={true}
 			borderStyle="rounded"
-			borderColor={focused ? "#3b82f6" : "#334155"}
+			borderColor={focused ? "#01AB95" : "#334155"}
 			title=" Institutions "
 			flexDirection="column"
 		>

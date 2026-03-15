@@ -11,6 +11,7 @@ import { StatusBar } from "./StatusBar.tsx";
 import { useInstitutions } from "./hooks/useInstitutions.ts";
 import { useFilters } from "./hooks/useFilters.ts";
 import type { SearchParams } from "../types.ts";
+import { colors } from "./brand.ts";
 
 const CATEGORIES = ["masjid", "surau", "tahfiz", "kebajikan", "lain-lain"];
 
@@ -183,23 +184,23 @@ export function App({ initialState, initialCategory }: AppProps) {
 			flexDirection="column"
 			width={width}
 			height={height}
-			backgroundColor="#0f172a"
+			backgroundColor={colors.bg}
 		>
 			{/* Header */}
-			<box height={1} width="100%" backgroundColor="#1e293b" paddingLeft={1}>
+			<box height={1} width="100%" backgroundColor={colors.tealDark} paddingLeft={1}>
 				<text>
-					<b fg="#38bdf8">sedekah.je</b>
-					<span fg="#64748b">{" — browse Malaysian donation QR codes"}</span>
+					<b fg={colors.tealLight}>sedekah.je</b>
+					<span fg={colors.teal}>{" — browse Malaysian donation QR codes"}</span>
 				</text>
 			</box>
 
 			{/* Search bar (when in search mode) */}
 			{mode === "search" ? (
-				<box height={1} width="100%" backgroundColor="#0c4a6e" paddingLeft={1}>
+				<box height={1} width="100%" backgroundColor={colors.bgAccent} paddingLeft={1}>
 					<text>
-						<span fg="#38bdf8">{"/ "}</span>
+						<span fg={colors.tealLight}>{"/ "}</span>
 						<span fg="#f8fafc">{searchInput}</span>
-						<span fg="#38bdf8">{"█"}</span>
+						<span fg={colors.tealLight}>{"█"}</span>
 					</text>
 				</box>
 			) : null}
@@ -209,12 +210,12 @@ export function App({ initialState, initialCategory }: AppProps) {
 				<box
 					height={3}
 					width="100%"
-					backgroundColor="#0c4a6e"
+					backgroundColor={colors.bgAccent}
 					paddingLeft={1}
 					flexDirection="column"
 				>
 					<text>
-						<b fg="#38bdf8">{"Filter by category: "}</b>
+						<b fg={colors.tealLight}>{"Filter by category: "}</b>
 						<span fg="#e2e8f0">
 							{"1:masjid  2:surau  3:tahfiz  4:kebajikan  5:lain-lain  c:clear"}
 						</span>

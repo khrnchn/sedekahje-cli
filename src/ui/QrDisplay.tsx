@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import qrcode from "qrcode-terminal";
+import type { PaymentMethod } from "../types.ts";
+import { paymentColors, paymentLabels, colors } from "./brand.ts";
+import { generateQrString } from "../utils/qr.ts";
 
 interface QrDisplayProps {
 	data: string | null;
+	paymentMethod?: PaymentMethod | null;
 }
 
-export function QrDisplay({ data }: QrDisplayProps) {
+export function QrDisplay({ data, paymentMethod }: QrDisplayProps) {
 	const [qrText, setQrText] = useState<string>("");
 
 	useEffect(() => {
@@ -13,22 +16,40 @@ export function QrDisplay({ data }: QrDisplayProps) {
 			setQrText("");
 			return;
 		}
-		qrcode.generate(data, { small: true }, (code: string) => {
-			setQrText(code ?? "");
-		});
+		generateQrString(data).then((framed) => setQrText(framed));
 	}, [data]);
 
 	if (!data || !qrText) {
 		return (
-			<box padding={1}>
-				<text fg="#64748b">{"No QR code available"}</text>
+			<box paddingLeft={1}>
+				<text fg={colors.textMuted}>{"No QR code available"}</text>
 			</box>
 		);
 	}
 
+	const labelColor =
+		(paymentMethod && paymentColors[paymentMethod]) || colors.textDim;
+	const label = paymentMethod && paymentLabels[paymentMethod];
+
 	return (
-		<box flexDirection="column" padding={1}>
-			<text fg="#e2e8f0">{qrText}</text>
+		<box flexDirection="column">
+			{/* Payment label blended above QR */}
+			{label ? (
+				<text>
+					<span fg={labelColor}>{`  ── ${label} `}</span>
+					<span fg={colors.textMuted}>{"──────────"}</span>
+				</text>
+			) : null}
+
+			{/* QR code in fixed frame */}
+			<text fg={colors.text}>{qrText}</text>
+
+			{/* Bottom line echoing payment */}
+			{label ? (
+				<text fg={colors.textMuted}>
+					{`  Scan with ${label}`}
+				</text>
+			) : null}
 		</box>
 	);
 }

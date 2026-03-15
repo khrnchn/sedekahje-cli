@@ -1,5 +1,6 @@
 import type { Institution, InstitutionCompact } from "../types.ts";
 import { QrDisplay } from "./QrDisplay.tsx";
+import { colors, MOSQUE_ART } from "./brand.ts";
 
 interface InstitutionDetailProps {
 	institution: Institution | InstitutionCompact | null;
@@ -32,22 +33,33 @@ export function InstitutionDetail({
 				flexGrow={1}
 				border={true}
 				borderStyle="rounded"
-				borderColor={focused ? "#3b82f6" : "#334155"}
+				borderColor={focused ? colors.borderFocused : colors.border}
 				title=" Detail "
-				padding={1}
 				flexDirection="column"
 				justifyContent="center"
 				alignItems="center"
 			>
-				<text fg="#64748b">{"Select an institution to view details"}</text>
+				{/* Mosque ASCII art as empty state */}
+				<scrollbox>
+					{MOSQUE_ART.map((line, i) => (
+						<text key={i} fg={colors.tealDark}>
+							{line}
+						</text>
+					))}
+				</scrollbox>
+				<box height={1} />
+				<text fg={colors.tealLight}>
+					{"  Select an institution to view details"}
+				</text>
 			</box>
 		);
 	}
 
 	const catColor = CATEGORY_COLORS[inst.category ?? ""] ?? "#6b7280";
-	const payments = inst.supportedPayment
-		?.map((p) => PAYMENT_LABELS[p] ?? p)
-		.join(", ") ?? "—";
+	const payments =
+		inst.supportedPayment?.map((p) => PAYMENT_LABELS[p] ?? p).join(", ") ??
+		"—";
+	const primaryPayment = inst.supportedPayment?.[0] ?? null;
 
 	const url =
 		"slug" in inst && inst.slug
@@ -59,37 +71,37 @@ export function InstitutionDetail({
 			flexGrow={1}
 			border={true}
 			borderStyle="rounded"
-			borderColor={focused ? "#3b82f6" : "#334155"}
+			borderColor={focused ? colors.borderFocused : colors.border}
 			title=" Detail "
 			padding={1}
 			flexDirection="column"
 		>
 			<text>
-				<b fg="#f8fafc">{inst.name ?? "Unknown"}</b>
+				<b fg={colors.text}>{inst.name ?? "Unknown"}</b>
 			</text>
 
 			<box height={1} />
 
 			<text>
-				<span fg="#94a3b8">{"Category:  "}</span>
+				<span fg={colors.textDim}>{"Category:  "}</span>
 				<span fg={catColor}>{inst.category ?? "—"}</span>
 			</text>
 			<text>
-				<span fg="#94a3b8">{"State:     "}</span>
-				<span fg="#e2e8f0">{inst.state ?? "—"}</span>
+				<span fg={colors.textDim}>{"State:     "}</span>
+				<span fg={colors.text}>{inst.state ?? "—"}</span>
 			</text>
 			<text>
-				<span fg="#94a3b8">{"City:      "}</span>
-				<span fg="#e2e8f0">{inst.city ?? "—"}</span>
+				<span fg={colors.textDim}>{"City:      "}</span>
+				<span fg={colors.text}>{inst.city ?? "—"}</span>
 			</text>
 			<text>
-				<span fg="#94a3b8">{"Payment:   "}</span>
+				<span fg={colors.textDim}>{"Payment:   "}</span>
 				<span fg="#22d3ee">{payments}</span>
 			</text>
 
 			{url ? (
 				<text>
-					<span fg="#94a3b8">{"URL:       "}</span>
+					<span fg={colors.textDim}>{"URL:       "}</span>
 					<u>
 						<span fg="#60a5fa">{url}</span>
 					</u>
@@ -99,12 +111,12 @@ export function InstitutionDetail({
 			{"description" in inst && inst.description ? (
 				<>
 					<box height={1} />
-					<text fg="#94a3b8">{inst.description}</text>
+					<text fg={colors.textDim}>{inst.description}</text>
 				</>
 			) : null}
 
 			<box height={1} />
-			<QrDisplay data={inst.qrContent} />
+			<QrDisplay data={inst.qrContent} paymentMethod={primaryPayment} />
 		</box>
 	);
 }

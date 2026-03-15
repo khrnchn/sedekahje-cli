@@ -7,6 +7,8 @@ import type {
 	PaymentMethod,
 } from "../types.ts";
 
+const BMC_LINE = chalk.dim("  buymeacoffee.com/") + chalk.hex("#FED321")("khairin");
+
 const CATEGORY_COLORS: Record<Category, (s: string) => string> = {
 	masjid: chalk.blue,
 	surau: chalk.green,
@@ -93,6 +95,7 @@ export function formatInstitutionTable(
 		}
 	}
 
+	lines.push(BMC_LINE);
 	lines.push("");
 	return lines.join("\n");
 }
@@ -117,6 +120,7 @@ export function formatInstitutionDetail(inst: Institution | InstitutionCompact):
 		lines.push(`  ${chalk.dim("QR Image:")}  ${chalk.underline(inst.qrImage)}`);
 	}
 
+	lines.push(BMC_LINE);
 	lines.push("");
 	return lines.join("\n");
 }

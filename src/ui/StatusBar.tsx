@@ -1,4 +1,5 @@
 import type { Pagination } from "../types.ts";
+import { colors } from "./brand.ts";
 
 interface StatusBarProps {
 	pagination: Pagination | null;
@@ -18,17 +19,25 @@ export function StatusBar({ pagination, mode }: StatusBarProps) {
 		: "Loading...";
 
 	return (
-		<box
-			flexDirection="row"
-			width="100%"
-			height={1}
-			backgroundColor="#1e293b"
-		>
-			<box flexGrow={1}>
-				<text fg="#94a3b8">{` ${KEYBINDS[mode] ?? ""}`}</text>
+		<box flexDirection="column" width="100%">
+			<box
+				flexDirection="row"
+				width="100%"
+				height={1}
+				backgroundColor={colors.tealDark}
+			>
+				<box flexGrow={1}>
+					<text fg={colors.tealLight}>{` ${KEYBINDS[mode] ?? ""}`}</text>
+				</box>
+				<box width={35} justifyContent="flex-end">
+					<text fg={colors.teal}>{`${pageInfo} `}</text>
+				</box>
 			</box>
-			<box width={35} justifyContent="flex-end">
-				<text fg="#64748b">{`${pageInfo} `}</text>
+			<box height={1} width="100%" backgroundColor={colors.bg}>
+				<text>
+					<span fg={colors.textMuted}>{" buymeacoffee.com/"}</span>
+					<span fg={colors.gold}>{"khairin"}</span>
+				</text>
 			</box>
 		</box>
 	);
