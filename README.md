@@ -4,7 +4,7 @@ Browse Malaysian donation QR codes from your terminal. A CLI & TUI companion for
 
 ## Interactive TUI
 
-Launch the full terminal UI with `sedekah browse`:
+Launch the full terminal UI with `sedekahje` or `sedekahje browse`:
 
 ```
 ┌─ Institutions ──────────────┬─ Detail ─────────────────────┐
@@ -44,20 +44,21 @@ Two-pane layout with real-time search, category filters, keyboard navigation, an
 
 ```bash
 # Search institutions
-sedekah search masjid
-sedekah search masjid --state Selangor --category masjid --limit 10
-sedekah search masjid --json | jq .
+sedekahje search masjid
+sedekahje search masjid --state Selangor --category masjid --limit 10
+sedekahje search masjid --json | jq .
 
 # Random institution
-sedekah random
-sedekah random --json
+sedekahje random
+sedekahje random --json
 
 # Display QR code in terminal
-sedekah qr "masjid negara"
+sedekahje qr "masjid negara"
 
-# Launch TUI
-sedekah browse
-sedekah browse --state Selangor
+# Launch TUI (either works)
+sedekahje
+sedekahje browse
+sedekahje browse --state Selangor
 ```
 
 ## Install
@@ -82,7 +83,7 @@ Install a specific version:
 curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/main/install.sh | SEDEKAHJE_VERSION=v0.1.0 sh
 ```
 
-**Supported:** Linux (x64, arm64), macOS (x64, Apple Silicon), Windows (x64)
+**Supported:** Linux (x64), macOS (Apple Silicon), Windows (x64)
 
 ### From source (requires [Bun](https://bun.sh))
 
@@ -95,6 +96,7 @@ bun install
 ### Run
 
 ```bash
+bun run dev                 # TUI (default)
 bun run dev browse          # TUI
 bun run dev search masjid   # CLI
 bun run dev qr "masjid negara"
@@ -104,7 +106,7 @@ bun run dev qr "masjid negara"
 
 ```bash
 bun run build
-./sedekah browse
+./sedekahje browse
 ```
 
 ### Publishing a release

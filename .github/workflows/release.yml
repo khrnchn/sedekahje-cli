@@ -10,7 +10,47 @@ permissions:
   contents: write
 
 jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            artifact: sedekahje-linux-x64
+            build: bun build src/index.tsx --compile --target=bun-linux-x64 --outfile=dist/sedekahje-linux-x64
+          - runner: macos-latest
+            artifact: sedekahje-darwin-arm64
+            build: bun build src/index.tsx --compile --target=bun-darwin-arm64 --outfile=dist/sedekahje-darwin-arm64
+          - runner: windows-latest
+            artifact: sedekahje-windows-x64.exe
+            build: bun build src/index.tsx --compile --target=bun-windows-x64 --outfile=dist/sedekahje-windows-x64.exe
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Create dist directory
+        run: mkdir -p dist
+
+      - name: Build
+        run: ${{ matrix.build }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+
   release:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,31 +64,11 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Create dist directory
-        run: mkdir -p dist
-
-      - name: Build Linux x64
-        run: bun build src/index.tsx --compile --target=bun-linux-x64 --outfile=dist/sedekah-linux-x64
-
-      - name: Build Linux arm64
-        run: bun build src/index.tsx --compile --target=bun-linux-arm64 --outfile=dist/sedekah-linux-arm64
-
-      - name: Build macOS x64
-        run: bun build src/index.tsx --compile --target=bun-darwin-x64 --outfile=dist/sedekah-darwin-x64
-
-      - name: Build macOS arm64 (Apple Silicon)
-        run: bun build src/index.tsx --compile --target=bun-darwin-arm64 --outfile=dist/sedekah-darwin-arm64
-
-      - name: Build Windows x64
-        run: bun build src/index.tsx --compile --target=bun-windows-x64 --outfile=dist/sedekah-windows-x64.exe
+          path: .
+          merge-multiple: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v2

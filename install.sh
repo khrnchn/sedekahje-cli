@@ -27,9 +27,9 @@ detect_platform() {
   esac
 
   if [ "$PLATFORM" = "windows" ]; then
-    ASSET="sedekah-${PLATFORM}-${ARCH}.exe"
+    ASSET="sedekahje-${PLATFORM}-${ARCH}.exe"
   else
-    ASSET="sedekah-${PLATFORM}-${ARCH}"
+    ASSET="sedekahje-${PLATFORM}-${ARCH}"
   fi
 }
 
@@ -63,16 +63,16 @@ install_from_release() {
 
   echo "Downloading ${TAG}..."
   mkdir -p "$INSTALL_DIR"
-  curl -fsSL -o "$INSTALL_DIR/sedekah" "$DOWNLOAD_URL"
-  chmod +x "$INSTALL_DIR/sedekah"
+  curl -fsSL -o "$INSTALL_DIR/sedekahje" "$DOWNLOAD_URL"
+  chmod +x "$INSTALL_DIR/sedekahje"
 
   echo ""
-  echo "Installed sedekah to $INSTALL_DIR"
+  echo "Installed sedekahje to $INSTALL_DIR"
   if ! echo ":$PATH:" | grep -q ":$INSTALL_DIR:"; then
     echo "Add to PATH: export PATH=\"\$PATH:$INSTALL_DIR\""
   fi
   echo ""
-  echo "Run: sedekah browse"
+  echo "Run: sedekahje browse"
 }
 
 # Fallback: build from source (requires Bun)
@@ -97,13 +97,13 @@ install_from_source() {
   bun run build
 
   mkdir -p "$INSTALL_DIR"
-  mv sedekah "$INSTALL_DIR/sedekah"
-  chmod +x "$INSTALL_DIR/sedekah"
+  mv sedekahje "$INSTALL_DIR/sedekahje"
+  chmod +x "$INSTALL_DIR/sedekahje"
   rm -rf "$TEMP_DIR"
 
   echo ""
-  echo "Installed to $INSTALL_DIR/sedekah"
-  echo "Run: sedekah browse"
+  echo "Installed to $INSTALL_DIR/sedekahje"
+  echo "Run: sedekahje browse"
 }
 
 install_from_release

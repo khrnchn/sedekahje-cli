@@ -115,7 +115,7 @@ export function formatInstitutionDetail(inst: Institution | InstitutionCompact):
 	}
 
 	if (inst.qrContent) {
-		lines.push(`  ${chalk.dim("QR Data:")}   ${chalk.dim("available (use 'sedekah qr' to display)")}`);
+		lines.push(`  ${chalk.dim("QR Data:")}   ${chalk.dim("available (use 'sedekahje qr' to display)")}`);
 	} else if (inst.qrImage) {
 		lines.push(`  ${chalk.dim("QR Image:")}  ${chalk.underline(inst.qrImage)}`);
 	}

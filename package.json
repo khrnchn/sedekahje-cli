@@ -6,11 +6,11 @@
   "type": "module",
   "private": true,
   "bin": {
-    "sedekah": "src/index.tsx"
+    "sedekahje": "src/index.tsx"
   },
   "scripts": {
     "dev": "bun run src/index.tsx",
-    "build": "bun build src/index.tsx --compile --outfile sedekah",
+    "build": "bun build src/index.tsx --compile --outfile sedekahje",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {

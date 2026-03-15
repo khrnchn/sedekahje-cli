@@ -9,7 +9,7 @@ bun run dev search <query>       # Search institutions
 bun run dev random               # Random institution
 bun run dev qr <name>            # Display QR code
 bun run dev browse               # Launch interactive TUI
-bun build src/index.tsx --compile --outfile sedekah  # Compile binary
+bun build src/index.tsx --compile --outfile sedekahje  # Compile binary
 ```
 
 ## Tech Stack
