@@ -86,7 +86,7 @@ install_from_source() {
   fi
 
   echo "Cloning repository..."
-  BRANCH="main"
+  BRANCH="master"
   [ "$VERSION" != "latest" ] && BRANCH="${VERSION#v}"
   git clone --depth 1 --branch "$BRANCH" "https://github.com/${REPO}.git" "$TEMP_DIR" 2>/dev/null || \
   git clone --depth 1 "https://github.com/${REPO}.git" "$TEMP_DIR"

@@ -70,19 +70,19 @@ sedekahje browse --state Selangor
 Downloads a pre-built binary from [GitHub Releases](https://github.com/khrnchn/sedekahje-cli/releases). No Bun required.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/master/install.sh | sh
 ```
 
 Installs to `~/.local/bin` by default. Set `SEDEKAHJE_INSTALL_DIR` to customize:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/main/install.sh | SEDEKAHJE_INSTALL_DIR=/usr/local/bin sh
+curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/master/install.sh | SEDEKAHJE_INSTALL_DIR=/usr/local/bin sh
 ```
 
 Install a specific version:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/main/install.sh | SEDEKAHJE_VERSION=v0.1.0 sh
+curl -fsSL https://raw.githubusercontent.com/khrnchn/sedekahje-cli/master/install.sh | SEDEKAHJE_VERSION=v0.1.0 sh
 ```
 
 **Supported:** Linux (x64), macOS (Apple Silicon), Windows (x64)
@@ -113,7 +113,7 @@ bun run build
 
 ### Publishing a release
 
-Releases are **automated on every push** to `main` or `master`. [GitHub Actions](.github/workflows/release.yml) builds binaries and publishes to [Releases](https://github.com/khrnchn/sedekahje-cli/releases). Each release is tagged as `v{version}+{sha}` (e.g. `v0.1.0+abc1234`).
+Releases are **automated on every push** to `master`. [GitHub Actions](.github/workflows/release.yml) builds binaries and publishes to [Releases](https://github.com/khrnchn/sedekahje-cli/releases). Each release is tagged as `v{version}+{sha}` (e.g. `v0.1.0+abc1234`).
 
 ## Tech Stack
 
