@@ -9,7 +9,7 @@ export const searchCommand = new Command("search")
 	.option("-s, --state <state>", "Filter by state")
 	.option("-c, --category <category>", "Filter by category (masjid,surau,tahfiz,kebajikan,lain-lain)")
 	.option("-p, --page <number>", "Page number", "1")
-	.option("-l, --limit <number>", "Results per page (max 50)", "15")
+	.option("-l, --limit <number>", "Results per page (max 50)", "40")
 	.option("--json", "Output raw JSON")
 	.action(async (query: string | undefined, opts) => {
 		try {

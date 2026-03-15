@@ -14,6 +14,7 @@ import { useFuzzySearch } from "./hooks/useFuzzySearch.ts";
 import type { SearchParams } from "../types.ts";
 import { colors } from "./brand.ts";
 import { openUrl } from "../utils/open.ts";
+import { copySelection } from "../utils/selection.ts";
 import { useToast } from "./Toast.tsx";
 import { useDialog } from "./Dialog.tsx";
 import { HelpDialog } from "./HelpDialog.tsx";
@@ -51,7 +52,7 @@ export function App({ initialState, initialCategory }: AppProps) {
 		(filters.state || filters.category ? 1 : 0) -
 		2; // status bar
 	const pageLimit = Math.max(
-		15,
+		40,
 		Math.min(50, Math.floor((contentHeight - 2) / 2)),
 	);
 	const paramsWithLimit = { ...params, limit: pageLimit };
@@ -339,7 +340,7 @@ export function App({ initialState, initialCategory }: AppProps) {
 	});
 
 	// Responsive layout: list panel ~50% of width, explicit content height for proper scroll
-	const listWidth = Math.min(60, Math.max(36, Math.floor(width * 0.5)));
+	const listWidth = Math.min(80, Math.max(40, Math.floor(width * 0.6)));
 	const isNarrow = width < 80;
 
 	// Client-side fuzzy search when in search mode; otherwise use server data
@@ -359,6 +360,7 @@ export function App({ initialState, initialCategory }: AppProps) {
 			width={width}
 			height={height}
 			backgroundColor={colors.bg}
+			onMouseUp={() => copySelection(renderer, toast)}
 		>
 			{/* Header */}
 			<box height={1} width="100%" backgroundColor={colors.tealDark} paddingLeft={1}>

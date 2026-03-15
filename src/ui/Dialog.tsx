@@ -5,8 +5,10 @@ import {
 	useCallback,
 	type ReactNode,
 } from "react";
-import { useKeyboard, useTerminalDimensions } from "@opentui/react";
+import { useKeyboard, useTerminalDimensions, useRenderer } from "@opentui/react";
 import { colors } from "./brand.ts";
+import { copySelection } from "../utils/selection.ts";
+import { useToast } from "./Toast.tsx";
 
 interface DialogContextValue {
 	show: (element: ReactNode) => void;
@@ -24,6 +26,8 @@ export function useDialog(): DialogContextValue {
 export function DialogProvider({ children }: { children: ReactNode }) {
 	const [content, setContent] = useState<ReactNode | null>(null);
 	const { width, height } = useTerminalDimensions();
+	const renderer = useRenderer();
+	const toast = useToast();
 
 	const show = useCallback((element: ReactNode) => {
 		setContent(element);
@@ -54,6 +58,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
 					backgroundColor="#0a0a0f"
 					justifyContent="center"
 					alignItems="center"
+					onMouseUp={() => copySelection(renderer, toast)}
 				>
 					<box
 						width={Math.min(60, width - 4)}
